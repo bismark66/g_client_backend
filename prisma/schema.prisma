@@ -59,6 +59,7 @@ model Track {
   track_name       String
   description String?
   instructor String?
+  price      Float?
   period    String?
   tools      String?
   rating     Float?
