@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+
+enum Role {
+  ADMIN
+  LEARNER
+}
+
+
+model User{
+  id        Int  @id @default(autoincrement())
+  first_name     String   
+  last_name      String?
+  email     String   @unique
+  password  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  gender         String?
+  location       String?
+  contact_number String?
+  bio           String?
+  role          Role
+  trackId         Int?    
+  track           Track?   @relation(fields: [trackId], references: [id])
+  
+  @@map("users") 
+  @@index([trackId])
+}
+
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  track_id   Int
+  track      Track @relation(fields: [track_id], references: [id])
+
+  @@index([track_id])
+}
+
+model Track {
+  id          Int      @id @default(autoincrement())
+  track_name       String
+  description String?
+  instructor String?
+  period    String?
+  tools      String?
+  rating     Float?
+  image      String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  courses    Course[]
+
+  User User[]
+}
+
