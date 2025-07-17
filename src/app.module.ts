@@ -8,6 +8,7 @@ import { AdminModule } from './resources/admin/admin.module';
 import { LearnerModule } from './resources/learner/learner.module';
 import { TrackModule } from './resources/track/track.module';
 import { CoursesModule } from './resources/courses/courses.module';
+import { AuthModule } from './resources/auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CoursesModule } from './resources/courses/courses.module';
     LearnerModule,
     TrackModule,
     CoursesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
