@@ -33,7 +33,10 @@ const Hash = {
    * @returns A promise that resolves to the hashed object.
    */
   hashObject: async (object: object): Promise<string> => {
-    const stringifiedObject = JSON.stringify(object);
+    const stringifiedObject = JSON.stringify(
+      object,
+      Object.keys(object).sort(),
+    );
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(stringifiedObject, salt);
   },
