@@ -17,7 +17,7 @@ export class AuthController {
     return this.authService.signIn(
       signInDto.email,
       signInDto.password,
-      signInDto.role,
+      // signInDto.role,
     );
   }
 }

@@ -16,9 +16,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(email: string, pass: string, role: Role): Promise<any> {
+  async signIn(email: string, pass: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
-      where: { email, role },
+      where: { email },
     });
     if (!user || !(await Hash.compareString(pass, user.password))) {
       throw new UnauthorizedException();
