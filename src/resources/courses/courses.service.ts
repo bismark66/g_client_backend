@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '../../prisma-client/prisma-client.service';
@@ -8,13 +8,17 @@ export class CoursesService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createCourseDto: CreateCourseDto) {
-    return this.prisma.course.create({
-      data: {
-        title: createCourseDto.title,
-        description: createCourseDto.description,
-        track_id: createCourseDto.trackId, // Use snake_case for direct field assignment
-      },
-    });
+    try {
+      return this.prisma.course.create({
+        data: {
+          title: createCourseDto.title,
+          description: createCourseDto.description,
+          track_id: createCourseDto.trackId, // Use snake_case for direct field assignment
+        },
+      });
+    } catch (error) {
+      throw new NotFoundException(`Course creation failed: ${error}`);
+    }
   }
 
   findAll() {
@@ -25,32 +29,47 @@ export class CoursesService {
     });
   }
 
-  findOne(id: number) {
-    return this.prisma.course.findUnique({
+  async findOne(id: number) {
+    const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
         track: true,
       },
     });
+
+    if (!course) {
+      throw new NotFoundException(`Course not found`);
+    }
+
+    return course;
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    const updateData: any = {
-      title: updateCourseDto.title,
-      description: updateCourseDto.description,
-    };
+  async update(id: number, updateCourseDto: UpdateCourseDto) {
+    // Verify course exists first
+    const course = await this.prisma.course.findUnique({ where: { id } });
 
-    if (updateCourseDto.trackId !== undefined) {
-      updateData.track_id = updateCourseDto.trackId;
+    if (!course) {
+      throw new NotFoundException(`Course not found`);
     }
+
+    const { trackId, ...rest } = updateCourseDto;
 
     return this.prisma.course.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...rest,
+        ...(trackId !== undefined && { track_id: trackId }),
+      },
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const course = await this.prisma.course.findUnique({ where: { id } });
+
+    if (!course) {
+      throw new NotFoundException(`Course not found`);
+    }
+
     return this.prisma.course.delete({
       where: { id },
     });
