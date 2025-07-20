@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { LearnerService } from './learner.service';
 import { CreateLearnerDto } from './dto/create-learner.dto';
@@ -28,6 +29,7 @@ export class LearnerController {
   @Get()
   @ApiOperation({ summary: 'Get all learners' })
   @ApiResponse({ status: 200, description: 'List of all learners' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   findAll() {
     return this.learnerService.findAll();
   }
@@ -50,7 +52,10 @@ export class LearnerController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a learner by ID' })
   @ApiResponse({ status: 200, description: 'Learner deleted successfully' })
-  remove(@Param('id') id: string) {
-    return this.learnerService.remove(+id);
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Learner not found' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.learnerService.remove(id);
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Controller,
   Get,
@@ -6,11 +7,13 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { ApiOperation, ApiResponse, ApiBody, ApiTags } from '@nestjs/swagger';
+import { HashPasswordInterceptor } from 'src/interceptors/hash-password.interceptor';
 
 @ApiTags('admin')
 @Controller('admin')
@@ -21,6 +24,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Create a new admin' })
   @ApiResponse({ status: 201, description: 'Admin created successfully' })
   @ApiBody({ type: CreateAdminDto })
+  @UseInterceptors(HashPasswordInterceptor)
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
@@ -42,6 +46,7 @@ export class AdminController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update an admin by ID' })
   @ApiResponse({ status: 200, description: 'Admin updated successfully' })
+  @UseInterceptors(HashPasswordInterceptor)
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(+id, updateAdminDto);
   }
