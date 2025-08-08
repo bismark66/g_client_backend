@@ -19,6 +19,10 @@ enum Role {
   LEARNER
 }
 
+enum InvoiceStatus {
+  Paid
+  Pending
+}
 
 model User{
   id        Int  @id @default(autoincrement())
@@ -35,6 +39,8 @@ model User{
   role          Role
   trackId         Int?    
   track           Track?   @relation(fields: [trackId], references: [id])
+  invoices  Invoice[] 
+ 
   
   @@map("users") 
   @@index([trackId])
@@ -72,3 +78,14 @@ model Track {
   @@map("tracks")
 }
 
+
+model Invoice {
+  id Int @id @default(autoincrement())
+  amount  Int
+  status  InvoiceStatus 
+  due_date String
+  payment_details String?
+  userId    Int     // Foreign key (optional if invoices can exist without a user)
+  user      User?    @relation(fields: [userId], references: [id]) // Relation to User
+  @@map("invoices")
+  }
