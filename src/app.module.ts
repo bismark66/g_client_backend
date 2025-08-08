@@ -9,6 +9,7 @@ import { LearnerModule } from './resources/learner/learner.module';
 import { TrackModule } from './resources/track/track.module';
 import { CoursesModule } from './resources/courses/courses.module';
 import { AuthModule } from './resources/auth/auth.module';
+import { InvoicesModule } from './resources/invoices/invoices.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from './resources/auth/auth.module';
     TrackModule,
     CoursesModule,
     AuthModule,
+    InvoicesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
