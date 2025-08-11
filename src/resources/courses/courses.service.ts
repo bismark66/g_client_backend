@@ -21,12 +21,22 @@ export class CoursesService {
     }
   }
 
-  findAll() {
-    return this.prisma.course.findMany({
+  async findAll() {
+    const courses = await this.prisma.course.findMany({
       include: {
-        track: true,
+        track: {
+          select: {
+            track_name: true,
+          },
+        },
       },
     });
+
+    return courses.map((course) => ({
+      ...course,
+      track_name: course.track.track_name, // Flatten track_name
+      track: undefined, // Remove the nested track object
+    }));
   }
 
   async findOne(id: number) {

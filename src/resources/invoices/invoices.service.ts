@@ -30,13 +30,13 @@ export class InvoicesService {
     }
 
     // Verify the track exists
-    const track = await this.prisma.track.findUnique({
-      where: { id: createInvoiceDto.trackId },
-    });
+    // const track = await this.prisma.user.findUnique({
+    //   where: { id: createInvoiceDto.learnerId, role: 'LEARNER' },
+    // });
 
-    if (!track) {
-      throw new NotFoundException('Track not found');
-    }
+    // if (!track) {
+    //   throw new NotFoundException('Track not found');
+    // }
 
     // Create invoice
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -55,14 +55,43 @@ export class InvoicesService {
     });
   }
 
+  // async findAll() {
+  //   return this.prisma.invoice.findMany({
+  //     include: {
+  //       user: { select: { id: true, email: true } },
+  //       // track: { select: { track_name: true } },
+  //     },
+  //     // orderBy: { created_at: 'desc' },
+  //   });
+  // }
+
   async findAll() {
-    return this.prisma.invoice.findMany({
-      include: {
-        user: { select: { id: true, email: true } },
-        // track: { select: { track_name: true } },
-      },
-      // orderBy: { created_at: 'desc' },
-    });
+    return this.prisma.invoice
+      .findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              first_name: true,
+              last_name: true,
+              created_at: true,
+            },
+          },
+        },
+      })
+      .then((invoices) =>
+        invoices.map((invoice) => ({
+          id: invoice.id,
+          name: `${invoice?.user?.first_name} ${invoice?.user?.last_name}`,
+          email: invoice?.user?.email,
+          due_date: invoice.due_date,
+          amount: invoice.amount,
+          status: invoice.status,
+          // created_at: invoice.user.created_at,
+          // payment_details: invoice.payment_details,
+        })),
+      );
   }
 
   async findOne(id: number) {
