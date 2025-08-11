@@ -22,10 +22,35 @@ export class LearnerService {
     }
   }
 
+  // findAll() {
+  //   return this.prisma.user.findMany({
+  //     where: { role: Role.LEARNER },
+  //   });
+  // }
+
   findAll() {
-    return this.prisma.user.findMany({
-      where: { role: Role.LEARNER },
-    });
+    return this.prisma.user
+      .findMany({
+        where: { role: Role.LEARNER },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          gender: true,
+          created_at: true,
+          trackId: true,
+        },
+      })
+      .then((users) =>
+        users.map((user) => ({
+          id: user.id,
+          learner: `${user.first_name} ${user.last_name}`,
+          gender: user.gender,
+          'joined at': user.created_at,
+          track: user.trackId,
+          amount: 0, // You can set default amount or calculate it
+        })),
+      );
   }
 
   async findOne(id: number) {
