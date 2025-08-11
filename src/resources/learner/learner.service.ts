@@ -1,5 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLearnerDto } from './dto/create-learner.dto';
 import { UpdateLearnerDto } from './dto/update-learner.dto';
 import { PrismaService } from '../../prisma-client/prisma-client.service';
@@ -9,24 +14,35 @@ import { Role } from '@prisma/client';
 export class LearnerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createLearnerDto: CreateLearnerDto) {
+  async create(createLearnerDto: CreateLearnerDto) {
+    const { courseIds, ...rest } = createLearnerDto;
+
     try {
-      return this.prisma.user.create({
+      return await this.prisma.user.create({
         data: {
-          ...createLearnerDto,
+          ...rest,
           role: Role.LEARNER,
+          courses:
+            courseIds && courseIds.length > 0
+              ? {
+                  connect: courseIds.map((id) => ({ id })),
+                }
+              : undefined,
+        },
+        include: {
+          courses: true, // Include the enrolled courses
         },
       });
     } catch (error) {
-      throw new NotFoundException(`Learner creation failed: ${error}`);
+      // Handle specific Prisma errors
+      if (error.code === 'P2025') {
+        throw new NotFoundException('One or more courses not found');
+      }
+      throw new BadRequestException(
+        `Learner creation failed: ${error.message}`,
+      );
     }
   }
-
-  // findAll() {
-  //   return this.prisma.user.findMany({
-  //     where: { role: Role.LEARNER },
-  //   });
-  // }
 
   findAll() {
     return this.prisma.user
@@ -38,7 +54,11 @@ export class LearnerService {
           last_name: true,
           gender: true,
           created_at: true,
-          trackId: true,
+          courses: {
+            select: {
+              title: true, // pick only what you want from the course
+            },
+          },
         },
       })
       .then((users) =>
@@ -47,8 +67,8 @@ export class LearnerService {
           learner: `${user.first_name} ${user.last_name}`,
           gender: user.gender,
           'joined at': user.created_at,
-          track: user.trackId,
-          amount: 0, // You can set default amount or calculate it
+          course: user?.courses?.length > 0 ? user?.courses[0].title : null, // flatten to single course
+          amount: 0, // default or calculated value
         })),
       );
   }
