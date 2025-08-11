@@ -14,12 +14,12 @@ export class CreateInvoiceDto {
   @IsNumber()
   amount: number;
 
-  @ApiProperty({
-    description: 'ID of the track being purchased',
-    example: 1,
-  })
-  @IsNumber()
-  trackId: number;
+  //   @ApiProperty({
+  //     description: 'ID of the track being purchased',
+  //     example: 1,
+  //   })
+  //   @IsNumber()
+  //   trackId: number;
 
   @ApiProperty({
     description: 'ID of the learner making the purchase',
