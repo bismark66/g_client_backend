@@ -10,6 +10,7 @@ import { TrackModule } from './resources/track/track.module';
 import { CoursesModule } from './resources/courses/courses.module';
 import { AuthModule } from './resources/auth/auth.module';
 import { InvoicesModule } from './resources/invoices/invoices.module';
+import { AnalyticsModule } from './resources/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { InvoicesModule } from './resources/invoices/invoices.module';
     CoursesModule,
     AuthModule,
     InvoicesModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
