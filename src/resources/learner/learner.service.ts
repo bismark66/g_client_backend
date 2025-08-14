@@ -32,13 +32,16 @@ export class LearnerService {
     return this.prisma.user
       .findMany({
         where: { role: Role.LEARNER },
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          gender: true,
-          created_at: true,
-          trackId: true,
+        // select: {
+        //   id: true,
+        //   first_name: true,
+        //   last_name: true,
+        //   gender: true,
+        //   created_at: true,
+        //   trackId: true,
+        // },
+        include: {
+          invoices: true,
         },
       })
       .then((users) =>
@@ -48,7 +51,10 @@ export class LearnerService {
           gender: user.gender,
           'joined at': user.created_at,
           track: user.trackId,
-          amount: 0, // You can set default amount or calculate it
+          amount: user.invoices.reduce(
+            (total, invoice) => total + invoice.amount,
+            0,
+          ), // You can set default amount or calculate it
         })),
       );
   }
