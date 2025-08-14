@@ -46,6 +46,7 @@ export class InvoicesService {
         status: createInvoiceDto.status || InvoiceStatus.Pending,
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
         user: { connect: { id: createInvoiceDto.learnerId } },
+        payment_details: createInvoiceDto.payment_details,
         // track: { connect: { id: createInvoiceDto.trackId } },
       },
       include: {
@@ -89,7 +90,7 @@ export class InvoicesService {
           amount: invoice.amount,
           status: invoice.status,
           // created_at: invoice.user.created_at,
-          // payment_details: invoice.payment_details,
+          payment_details: invoice.payment_details,
         })),
       );
   }
