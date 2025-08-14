@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
@@ -30,7 +31,7 @@ export class InvoicesController {
     return this.invoicesService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateInvoiceDto: UpdateInvoiceDto) {
     return this.invoicesService.update(+id, updateInvoiceDto);
   }
