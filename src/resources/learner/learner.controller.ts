@@ -34,6 +34,16 @@ export class LearnerController {
     return this.learnerService.findAll();
   }
 
+  // find courses by learnerId
+  @Get(':learnerId/courses')
+  @ApiOperation({ summary: 'Get all courses by learnerId' })
+  @ApiResponse({ status: 200, description: 'List of all courses by learnerId' })
+  findAllCoursesByLearnerId(
+    @Param('learnerId', ParseIntPipe) learnerId: number,
+  ) {
+    return this.learnerService.findAllCoursesByLearnerId(learnerId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a learner by ID' })
   @ApiResponse({ status: 200, description: 'Learner found' })
