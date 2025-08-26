@@ -4,6 +4,8 @@ import {
   IsNotEmpty,
   IsEmail,
   IsStrongPassword,
+  IsEnum,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateLearnerDto {
@@ -18,6 +20,21 @@ export class CreateLearnerDto {
   last_name: string;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
+  location: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  contact_number: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  bio: string;
+
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -26,4 +43,10 @@ export class CreateLearnerDto {
   @IsStrongPassword()
   @IsNotEmpty()
   password: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsEnum(['Male', 'Female'])
+  gender: string;
 }
