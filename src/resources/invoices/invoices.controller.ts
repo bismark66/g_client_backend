@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
@@ -24,6 +23,12 @@ export class InvoicesController {
   @Get()
   findAll() {
     return this.invoicesService.findAll();
+  }
+
+  // get invoices by learnerId
+  @Get('/learner/:learnerId')
+  findAllByLearnerId(@Param('learnerId') learnerId: string) {
+    return this.invoicesService.findAllByLearnerId(+learnerId);
   }
 
   @Get(':id')
