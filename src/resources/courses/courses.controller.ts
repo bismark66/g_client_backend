@@ -32,6 +32,14 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
+  // Get All courses whose by trackId
+  @Get('/track/:trackId')
+  @ApiOperation({ summary: 'Get all courses by trackId' })
+  @ApiResponse({ status: 200, description: 'List of all courses by trackId' })
+  findAllByTrackId(@Param('trackId') trackId: string) {
+    return this.coursesService.findAllByTrackId(+trackId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a course by ID' })
   @ApiResponse({ status: 200, description: 'Course found' })
