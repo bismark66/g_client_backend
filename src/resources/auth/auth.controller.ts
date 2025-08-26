@@ -37,16 +37,6 @@ export class AuthController {
     );
   }
 
-  // Modify the swagger to also accept the bearer token
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       Authorization: { type: 'string', example: 'Bearer <token>' },
-  //     },
-  //   },
-  // })
-  // Change password
   @HttpCode(HttpStatus.OK)
   @Post('change-password')
   @ApiOperation({ summary: 'Change user password' })
