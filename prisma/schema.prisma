@@ -85,6 +85,8 @@ model Invoice {
   status  InvoiceStatus 
   due_date String
   payment_details String?
+  created_at  DateTime? @default(now())
+  updated_at  DateTime? @updatedAt
   userId    Int     // Foreign key (optional if invoices can exist without a user)
   user      User?    @relation(fields: [userId], references: [id]) // Relation to User
   @@map("invoices")
