@@ -54,6 +54,25 @@ export class CoursesService {
     return course;
   }
 
+  async findAllByTrackId(trackId: number) {
+    const courses = await this.prisma.course.findMany({
+      where: { track_id: trackId },
+      include: {
+        track: {
+          select: {
+            track_name: true,
+          },
+        },
+      },
+    });
+
+    return courses.map((course) => ({
+      ...course,
+      track_name: course.track.track_name, // Flatten track_name
+      track: undefined, // Remove the nested track object
+    }));
+  }
+
   async update(id: number, updateCourseDto: UpdateCourseDto) {
     // Verify course exists first
     const course = await this.prisma.course.findUnique({ where: { id } });
