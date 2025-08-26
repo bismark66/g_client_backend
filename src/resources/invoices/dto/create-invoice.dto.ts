@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsEnum } from 'class-validator';
+import { IsNumber, IsEnum, IsOptional } from 'class-validator';
 
 export enum InvoiceStatus {
   Paid = 'Paid',
@@ -42,4 +42,9 @@ export class CreateInvoiceDto {
     example: 'Credit card: 1234-5678-9012-3456',
   })
   payment_details: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  trackId: number;
 }
