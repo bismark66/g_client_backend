@@ -29,42 +29,57 @@ export class InvoicesService {
       throw new NotFoundException('Learner not found');
     }
 
-    // Verify the track exists
-    // const track = await this.prisma.user.findUnique({
-    //   where: { id: createInvoiceDto.learnerId, role: 'LEARNER' },
-    // });
+    // Verify the track exists if trackId is provided
+    if (createInvoiceDto.trackId) {
+      const track = await this.prisma.track.findUnique({
+        where: { id: createInvoiceDto.trackId },
+      });
 
-    // if (!track) {
-    //   throw new NotFoundException('Track not found');
-    // }
+      if (!track) {
+        throw new NotFoundException('Track not found');
+      }
+
+      // Update the learner's track
+      await this.prisma.user.update({
+        where: { id: createInvoiceDto.learnerId },
+        data: { trackId: createInvoiceDto.trackId },
+      });
+    }
 
     // Create invoice
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.prisma.invoice.create({
       data: {
         amount: createInvoiceDto.amount,
         status: createInvoiceDto.status || InvoiceStatus.Pending,
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         user: { connect: { id: createInvoiceDto.learnerId } },
         payment_details: createInvoiceDto.payment_details,
-        // track: { connect: { id: createInvoiceDto.trackId } },
       },
       include: {
-        user: { select: { id: true, email: true, first_name: true } },
-        // track: { select: { track_name: true, price: true } },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            first_name: true,
+            track: { select: { id: true, track_name: true } }, // Include track info
+          },
+        },
       },
     });
   }
 
-  // async findAll() {
-  //   return this.prisma.invoice.findMany({
-  //     include: {
-  //       user: { select: { id: true, email: true } },
-  //       // track: { select: { track_name: true } },
-  //     },
-  //     // orderBy: { created_at: 'desc' },
-  //   });
-  // }
+  async findAllByLearnerId(learnerId: number) {
+    // Verify the learner exists
+    const learner = await this.prisma.user.findMany({
+      where: { id: learnerId, role: 'LEARNER' },
+    });
+
+    if (!learner) {
+      throw new NotFoundException('Learner not found');
+    }
+
+    return this.getLearnerInvoices(learnerId);
+  }
 
   async findAll() {
     return this.prisma.invoice
@@ -137,10 +152,7 @@ export class InvoicesService {
   async getLearnerInvoices(learnerId: number) {
     return this.prisma.invoice.findMany({
       where: { userId: learnerId },
-      include: {
-        // track: { select: { track_name: true, image: true } },
-      },
-      // orderBy: { created_at: 'desc' },
+      include: {},
     });
   }
 
