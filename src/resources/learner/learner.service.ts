@@ -4,17 +4,20 @@ import { CreateLearnerDto } from './dto/create-learner.dto';
 import { UpdateLearnerDto } from './dto/update-learner.dto';
 import { PrismaService } from '../../prisma-client/prisma-client.service';
 import { Role } from '@prisma/client';
+import hash from 'src/utils/hash';
 
 @Injectable()
 export class LearnerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createLearnerDto: CreateLearnerDto) {
+  async create(createLearnerDto: CreateLearnerDto) {
     try {
+      const hashedPassword = await hash.hashString(createLearnerDto.password);
       return this.prisma.user.create({
         data: {
           ...createLearnerDto,
           role: Role.LEARNER,
+          password: hashedPassword,
         },
       });
     } catch (error) {
@@ -59,10 +62,17 @@ export class LearnerService {
       );
   }
 
-  async findOne(id: number) {
+  async findAllCoursesByLearnerId(learnerId: number) {
     const user = await this.prisma.user.findFirst({
       where: {
-        AND: [{ id }, { role: Role.LEARNER }],
+        AND: [{ id: learnerId }, { role: Role.LEARNER }],
+      },
+      include: {
+        track: {
+          include: {
+            courses: true, // Include courses through the track
+          },
+        },
       },
     });
 
@@ -70,7 +80,43 @@ export class LearnerService {
       throw new NotFoundException(`Learner not found`);
     }
 
-    return user;
+    if (!user.track) {
+      throw new NotFoundException(`Learner is not enrolled in any track`);
+    }
+
+    return user.track.courses;
+  }
+
+  async findOne(id: number) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        AND: [{ id }, { role: Role.LEARNER }],
+      },
+      include: {
+        // courses: true,
+        invoices: true,
+        track: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Learner not found`);
+    }
+
+    return {
+      id: user.id,
+      learner: `${user.first_name} ${user.last_name}`,
+      gender: user.gender,
+      'joined at': user.created_at,
+      track: user.track?.track_name || null,
+      bio: user.bio,
+      contact: user.contact_number,
+      location: user.location,
+      amount: user.invoices.reduce(
+        (total, invoice) => total + invoice.amount,
+        0,
+      ),
+    };
   }
 
   update(id: number, updateLearnerDto: UpdateLearnerDto) {
